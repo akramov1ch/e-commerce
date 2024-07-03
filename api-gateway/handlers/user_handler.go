@@ -14,16 +14,16 @@ import (
 func UserRoutes(router *gin.RouterGroup, userConn *grpc.ClientConn, jwtSecret string) {
 	client := proto.NewUserServiceClient(userConn)
 
-	router.POST("/register", func(c *gin.Context) {
+	router.POST("/user/create", func(c *gin.Context) {
 		var req proto.RegisterRequest
 		if err := c.ShouldBindJSON(&req); err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			c.JSON(http.StatusBadRequest, gin.H{"error3": err.Error()})
 			return
 		}
 
 		resp, err := client.Register(context.Background(), &req)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			c.JSON(http.StatusInternalServerError, gin.H{"error4": err.Error()})
 			return
 		}
 		c.JSON(http.StatusOK, resp)

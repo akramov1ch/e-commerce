@@ -10,6 +10,11 @@ import (
 
 func AuthMiddleware(jwtSecret string) gin.HandlerFunc {
     return func(c *gin.Context) {
+        if c.Request.URL.Path == "/api/user/create" && c.Request.Method == "POST" {
+            c.Next()
+            return
+        }
+
         authHeader := c.GetHeader("Authorization")
         if authHeader == "" {
             c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header required"})

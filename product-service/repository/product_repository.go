@@ -2,6 +2,7 @@ package repository
 
 import (
 	"database/sql"
+	"fmt"
 
 	"product-service/config"
 	"product-service/models"
@@ -21,10 +22,11 @@ type PostgresRepository struct {
 	db *sql.DB
 }
 
-
 func NewPostgresRepository() (ProductRepository, error) {
-	var config config.Config
-	connStr := config.DatabaseURL
+
+	cfg := config.LoadConfig()
+	connStr := cfg.DatabaseURL
+	fmt.Println(cfg.DatabaseURL)
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, err
