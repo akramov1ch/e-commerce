@@ -18,6 +18,7 @@ func main() {
     if err != nil {
         log.Fatalf("Could not connect to User Service: %v", err)
     }
+    log.Println("connected to User Service")
     defer userConn.Close()
 
     productConn, err := grpc.NewClient(cfg.ProductServiceURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -25,12 +26,14 @@ func main() {
         log.Fatalf("Could not connect to Product Service: %v", err)
     }
     defer productConn.Close()
+    log.Println("Connected to Product Service")
 
     orderConn, err := grpc.NewClient(cfg.OrderServiceURL, grpc.WithTransportCredentials(insecure.NewCredentials()))
     if err != nil {
         log.Fatalf("Could not connect to Order Service: %v", err)
     }
     defer orderConn.Close()
+    log.Println("Connected to Order Service")
 
     r := gin.Default()
 
