@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package proproto;
+
+option go_package = "./proproto";
+
+service ProductService {
+    rpc AddProduct (AddProductRequest) returns (AddProductResponse);
+    rpc GetProduct (GetProductRequest) returns (GetProductResponse);
+    rpc UpdateProduct (UpdateProductRequest) returns (UpdateProductResponse);
+    rpc DeleteProduct (DeleteProductRequest) returns (DeleteProductResponse);
+    rpc ListProducts (ListProductsRequest) returns (stream ListProductsResponse);
+}
+
+message AddProductRequest {
+    string name = 1;
+    string description = 2;
+    float price = 3;
+    int32 stock = 4;
+}
+
+message AddProductResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 stock = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
+message GetProductRequest {
+    string id = 1;
+}
+
+message GetProductResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 stock = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
+message UpdateProductRequest {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 stock = 5;
+}
+
+message UpdateProductResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 stock = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
+message DeleteProductRequest {
+    string id = 1;
+}
+
+message DeleteProductResponse {
+    string message = 1;
+}
+
+message ListProductsRequest {}
+
+message ListProductsResponse {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    float price = 4;
+    int32 stock = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}

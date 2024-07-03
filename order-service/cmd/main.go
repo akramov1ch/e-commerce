@@ -1,40 +1,55 @@
 package main
 
 import (
-	"log"
-	"net"
+    "database/sql"
+    "fmt"
+    "log"
+    "net"
+    "order-service/config"
+    "order-service/order"
+    orderpb "order-service/order/proto/orderproto"
 
-	"order-service/config"
-	"order-service/db"
-	"order-service/handlers"
-	"order-service/proto"
-
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
+    "github.com/joho/godotenv"
+    _ "github.com/lib/pq"
+    "google.golang.org/grpc"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
-	}
 
-	cfg := config.LoadConfig()
-	dbConn := db.Connect(cfg)
-	defer dbConn.Close()
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("Error loading .env file")
+    }
 
-	orderHandler := handlers.NewOrderHandler(dbConn)
+    cfg := config.LoadConfig()
+    db, err := sql.Open("postgres", "host=" + cfg.DBHost + " port=" + cfg.DBPort + " user=" + cfg.DBUser + " password=" + cfg.DBPassword + " dbname=" + cfg.DBName + " sslmode=disable")
+    if err != nil {
+        log.Fatalf("failed to connect to the database: %v", err)
+    }
+    defer db.Close()
 
-	lis, err := net.Listen("tcp", cfg.GRPCPort)
-	if err != nil {
-		log.Fatalf("Failed to listen on port %s: %v", cfg.GRPCPort, err)
-	}
+    repo := order.NewPostgresRepository(db)
+    service := order.NewOrderService(repo)
 
-	grpcServer := grpc.NewServer()
-	proto.RegisterOrderServiceServer(grpcServer, orderHandler)
+    productClient, err := order.NewProductClient(":" + cfg.USER_SERVICE_PORT) 
+    if err != nil {
+        log.Fatalf("failed to create product client: %v", err)
+    }
 
-	log.Printf("Starting gRPC server on port %s", cfg.GRPCPort)
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve gRPC server: %v", err)
-	}
+    service.SetProductClient(productClient) 
+
+    server := order.NewServer(service)
+
+    fmt.Println("Server is running on port :", cfg.PORT)
+    lis, err := net.Listen("tcp", ":" + cfg.PORT)
+    if err != nil {
+        log.Fatalf("failed to listen: %v", err)
+    }
+
+    s := grpc.NewServer()
+    orderpb.RegisterOrderServiceServer(s, server)
+
+    if err := s.Serve(lis); err != nil {
+        log.Fatalf("failed to serve: %v", err)
+    }
 }

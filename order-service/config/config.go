@@ -1,34 +1,27 @@
 package config
 
-import (
-	"log"
-	"os"
-	"github.com/joho/godotenv"
-)
+import "os"
 
 type Config struct {
-	DBHost     string
-	DBPort     string
-	DBUser     string
-	DBPassword string
-	DBName     string
-	JWTSecret  string
-	GRPCPort   string
+    DBHost     string
+    DBPort     string
+    DBUser     string
+    DBPassword string
+    DBName     string
+    PORT       string
+    USER_SERVICE_PORT string
 }
 
-func LoadConfig() *Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
 
-	return &Config{
-		DBHost:     os.Getenv("DB_HOST"),
-		DBPort:     os.Getenv("DB_PORT"),
-		DBUser:     os.Getenv("DB_USER"),
-		DBPassword: os.Getenv("DB_PASSWORD"),
-		DBName:     os.Getenv("DB_NAME"),
-		JWTSecret:  os.Getenv("JWT_SECRET"),
-		GRPCPort:   ":8083",
-	}
+
+func LoadConfig() Config {
+    return Config{
+        DBHost:     os.Getenv("DB_HOST"),
+        DBPort:     os.Getenv("DB_PORT"),
+        DBUser:     os.Getenv("DB_USER"),
+        DBPassword: os.Getenv("DB_PASSWORD"),
+        DBName:     os.Getenv("DB_NAME"),
+        PORT:       os.Getenv("PORT"),
+        USER_SERVICE_PORT: os.Getenv("USER_SERVICE_PORT"),
+    }
 }

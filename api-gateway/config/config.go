@@ -1,30 +1,31 @@
 package config
 
 import (
-    "log"
-    "os"
-    "github.com/joho/godotenv"
+	"log"
+	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
-    UserServiceURL    string
-    ProductServiceURL string
-    OrderServiceURL   string
-    JWTSecret         string
+	ApiGatewayPort string
+	UserServicePort string
+	ProductServicePort string
+	OrderServicePort string
 }
 
 func LoadConfig() *Config {
-    err := godotenv.Load()
-    if err != nil {
-        log.Fatalf("Error loading .env file")
-    }
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
-    config := &Config{
-        UserServiceURL:    os.Getenv("USER_SERVICE_URL"),
-        ProductServiceURL: os.Getenv("PRODUCT_SERVICE_URL"),
-        OrderServiceURL:   os.Getenv("ORDER_SERVICE_URL"),
-        JWTSecret:         os.Getenv("JWT_SECRET"),
-    }
+	config := &Config{
+		ApiGatewayPort: os.Getenv("API_GATEWAY_PORT"),
+		UserServicePort: os.Getenv("USER_SERVICE_PORT"),
+		ProductServicePort: os.Getenv("PRODUCT_SERVICE_PORT"),
+		OrderServicePort: os.Getenv("ORDER_SERVICE_PORT"),
+	}
 
-    return config
+	return config
 }

@@ -1,33 +1,48 @@
 package main
 
 import (
-	"log"
-	"net"
+    "database/sql"
+    "fmt"
+    "log"
+    "net"
+    "product/config"
+    hand "product/handler"
+    "product/repository"
+    "product/service"
+    prodpb "product/proto/productproto"
 
-	"product-service/config"
-	"product-service/handlers"
-	"product-service/proto"
-
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
+    _ "github.com/lib/pq"
+    "github.com/joho/godotenv"
+    "google.golang.org/grpc"
 )
 
 func main() {
-	cfg := config.LoadConfig()
+    err := godotenv.Load()
+    if err != nil {
+        log.Fatalf("Error loading .env file")
+    }
 
-	lis, err := net.Listen("tcp", cfg.Port)
-	if err != nil {
-		log.Fatalf("Failed to listen on port %s: %v", cfg.Port, err)
-	}
+    cfg := config.LoadConfig()
+    db, err := sql.Open("postgres", "host="+cfg.DBHost+" port="+cfg.DBPort+" user="+cfg.DBUser+" dbname="+cfg.DBName+" password="+cfg.DBPassword+" sslmode=disable")
+    if err != nil {
+        log.Fatalf("failed to connect to database: %v", err)
+    }
+    defer db.Close()
 
-	grpcServer := grpc.NewServer()
-	productService := handlers.NewProductService()
-	proto.RegisterProductServiceServer(grpcServer, productService)
+    repo := repository.NewPostgresRepository(db)
+    service := service.NewProductService(repo)
+    server := hand.NewServer(service)
 
-	reflection.Register(grpcServer)
-	log.Printf("gRPC server listening on %s", cfg.Port)
+    fmt.Println("Server is running on port 8003")
+    lis, err := net.Listen("tcp", ":8003")
+    if err != nil {
+        log.Fatalf("failed to listen: %v", err)
+    }
 
-	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("Failed to serve gRPC server: %v", err)
-	}
+    s := grpc.NewServer()
+    prodpb.RegisterProductServiceServer(s, server)
+
+    if err := s.Serve(lis); err != nil {
+        log.Fatalf("failed to serve: %v", err)
+    }
 }

@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package orproto;
+
+option go_package = "./orproto";
+
+service OrderService {
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc GetOrder (GetOrderRequest) returns (GetOrderResponse);
+    rpc UpdateOrder (UpdateOrderRequest) returns (UpdateOrderResponse);
+    rpc DeleteOrder (DeleteOrderRequest) returns (DeleteOrderResponse);
+    rpc ListOrders (ListOrdersRequest) returns (ListOrdersResponse);
+    rpc CreateOrders (stream CreateOrderRequest) returns (CreateOrdersResponse);
+}
+
+message CreateOrderRequest {
+    string user_id = 1;
+    string product_id = 2;
+    int32 quantity = 3;
+}
+
+message CreateOrderResponse {
+    string id = 1;
+    float total_price = 2;
+}
+
+message GetOrderRequest {
+    string id = 1;
+}
+
+message GetOrderResponse {
+    string id = 1;
+    string user_id = 2;
+    string product_id = 3;
+    int32 quantity = 4;
+    string status = 5;
+    string created_at = 6;
+    string updated_at = 7;
+    float total_price = 8;
+}
+
+message UpdateOrderRequest {
+    string id = 1;
+    string status = 2;
+}
+
+message UpdateOrderResponse {
+    string id = 1;
+    string status = 2;
+}
+
+message DeleteOrderRequest {
+    string id = 1;
+}
+
+message DeleteOrderResponse {
+    string message = 1;
+}
+
+message ListOrdersRequest {}
+
+message ListOrdersResponse {
+    repeated GetOrderResponse orders = 1;
+}
+
+message CreateOrdersResponse {
+    repeated CreateOrderResponse orders = 1;
+}
