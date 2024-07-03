@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option go_package = "/proto";
+
+service OrderService {
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse);
+    rpc CreateOrders (stream CreateOrderRequest) returns (stream CreateOrderResponse);
+}
+
+message CreateOrderRequest {
+    string user_id = 1;
+    string product_id = 2;
+}
+
+message CreateOrderResponse {
+    string id = 1;
+    string user_id = 2;
+    string product_id = 3;
+    string ordered_at = 4;
+}
