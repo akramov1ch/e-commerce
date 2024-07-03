@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package proproto;
 
-option go_package = "./proproto";
+option go_package = "./productproto";
 
 service ProductService {
     rpc AddProduct (AddProductRequest) returns (AddProductResponse);

@@ -1,18 +1,19 @@
-package order
+package handlers
 
 import (
     "context"
     "io"
     "log"
-    orderpb "order-service/order/proto/orderproto"
+    "order-service/service"
+    orderpb "order-service/proto/orderproto"
 )
 
 type Server struct {
     orderpb.UnimplementedOrderServiceServer
-    service Service
+    service service.Service
 }
 
-func NewServer(service Service) *Server {
+func NewServer(service service.Service) *Server {
     return &Server{service: service}
 }
 
@@ -48,11 +49,10 @@ func (s *Server) GetOrder(ctx context.Context, req *orderpb.GetOrderRequest) (*o
     }, nil
 }
 
-
 func (s *Server) DeleteOrder(ctx context.Context, req *orderpb.DeleteOrderRequest) (*orderpb.DeleteOrderResponse, error) {
     log.Printf("Received DeleteOrder request: %+v", req)
     if err := s.service.DeleteOrder(req.Id); err != nil {
-        log.Printf("Error deleting orderpb: %v", err)
+        log.Printf("Error deleting order: %v", err)
         return nil, err
     }
     return &orderpb.DeleteOrderResponse{Message: "Order deleted"}, nil

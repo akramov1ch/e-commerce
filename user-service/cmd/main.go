@@ -5,11 +5,11 @@ import (
     "fmt"
     "log"
     "net"
-    "order-service/config"
-    "order-service/handlers"
-    "order-service/repository"
-    "order-service/service"
-    orderpb "order-service/proto/orderproto"
+    "user/config"
+    "user/handlers"
+    "user/repository"
+    "user/service"
+    upb "user/proto/uproto"
 
     "github.com/joho/godotenv"
     _ "github.com/lib/pq"
@@ -23,35 +23,24 @@ func main() {
     }
 
     cfg := config.LoadConfig()
-    db, err := sql.Open("postgres", fmt.Sprintf(
-        "host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
-        cfg.DBHost, cfg.DBPort, cfg.DBUser, cfg.DBPassword, cfg.DBName,
-    ))
+    db, err := sql.Open("postgres", "host=" + cfg.DBHost + " port=" + cfg.DBPort + " user=" + cfg.DBUser + " password=" + cfg.DBPassword + " dbname=" + cfg.DBName + " sslmode=disable")
     if err != nil {
         log.Fatalf("failed to connect to the database: %v", err)
     }
     defer db.Close()
 
     repo := repository.NewPostgresRepository(db)
-    svc := service.NewOrderService(repo)
-
-    productClient, err := service.NewProductClient(":" + cfg.USER_SERVICE_PORT)
-    if err != nil {
-        log.Fatalf("failed to create product client: %v", err)
-    }
-
-    svc.SetProductClient(productClient)
-
+    svc := service.NewUserService(repo)
     server := handlers.NewServer(svc)
 
-    fmt.Println("Server is running on port:", cfg.PORT)
+    fmt.Println("Server is running on port :", cfg.PORT)
     lis, err := net.Listen("tcp", ":" + cfg.PORT)
     if err != nil {
         log.Fatalf("failed to listen: %v", err)
     }
 
     s := grpc.NewServer()
-    orderpb.RegisterOrderServiceServer(s, server)
+    upb.RegisterUserServiceServer(s, server)
 
     if err := s.Serve(lis); err != nil {
         log.Fatalf("failed to serve: %v", err)
